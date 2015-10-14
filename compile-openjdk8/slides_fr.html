@@ -1,0 +1,139 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Compiler OpenJDK 8 pour l&#8217;embarqué</title><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui" name="viewport"><link href="reveal.js/css/reveal.css" rel="stylesheet"><link rel="stylesheet" href="resources/style.css" id="theme"><link href="reveal.js/lib/css/zenburn.css" rel="stylesheet"><script>document.write( '<link rel="stylesheet" href="reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );</script></head><body><div class="reveal"><div class="slides"><section id="_compiler_openjdk_8_pour_l_embarqué"><h2>Compiler OpenJDK 8 pour l&#8217;embarqué</h2><div class="paragraph"><p>Thomas Lorblanchès</p></div>
+<div class="paragraph"><p>16/10/2015</p></div>
+<table class="tableblock frame-none grid-none" style="width:100%"><colgroup><col style="width:50%"><col style="width:50%"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><div><div class="imageblock" style=""><div class="content"><img src="resources/big_coffee.jpg" alt="big coffee" width="300" height="300"></div></div></div></td><td class="tableblock halign-center valign-top"><div><div class="imageblock" style=""><div class="content"><img src="resources/little_coffee.jpg" alt="little coffee" width="300" height="300"></div></div></div></td></tr></tbody></table></section>
+<section id="_pré_requis_debian_et_dérivées"><h2>Pré-requis (Debian et dérivées)</h2><div class="listingblock"><div class="content"><pre class="highlight"><code>$ sudo apt-get install mercurial <b>(1)</b>
+$ hg clone http://hg.openjdk.java.net/jdk8u/jdk8u60 <b>(2)</b>
+$ cd jdk8u60
+$ bash ./get_source.sh <b>(3)</b>
+$ sudo apt-get install openjdk8-jdk <b>(4)</b>
+$ sudo apt-get build-dep openjdk-8 <b>(5)</b></code></pre></div></div>
+<div class="colist arabic"><ol><li><p>OpenJDK utilise Mercurial pour ses dépôts de source</p></li><li><p>Téléchargement du dépôt racine</p></li><li><p>Téléchargement des sous-dépôts ("forêt")</p></li><li><p>Java 7 ou 8 est requis pour compiler OpenJDK 8</p></li><li><p>Installation des dépendances de compilation</p></li></ol></div></section>
+<section id="_compilation_d_openjdk_8"><h2>Compilation d&#8217;OpenJDK 8</h2><div class="ulist"><ul><li><p>Configuration de la compilation :</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>$ bash ./configure --with-jvm-variants=server \
+                   --with-debug-level=release \
+                   --disable-debug-symbols --disable-zip-debug-info \
+                   --enable-unlimited-crypto</code></pre></div></div>
+<div class="ulist"><ul><li><p>Aide sur les options de configuration :</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>$ bash ./configure --help</code></pre></div></div>
+<div class="ulist"><ul><li><p>Compilation :</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>$ make all</code></pre></div></div></section>
+<section id="_etat_des_lieux_initial_98_3mo"><h2>Etat des lieux initial : 98.3Mo</h2><div class="imageblock" style=""><div class="content"><img src="resources/jdk8-server.png" alt="jdk8 server" height="800"></div></div></section>
+<section id="_types_de_vm"><h2>Types de VM</h2><div class="dlist"><dl><dt class="hdlist1">Server</dt><dd><p>VM par défaut, meilleures perfos, plus grosse.</p></dd><dt class="hdlist1">Client</dt><dd><p>VM 32bits optimisée pour les applications clientes (temps de démarrage).</p></dd><dt class="hdlist1">Minimal</dt><dd><p><a href="http://openjdk.java.net/jeps/148">JEP-148</a>, VM 32bits, empreinte minimale, dégradation perfo &lt; 5%.</p></dd><dt class="hdlist1">Kernel</dt><dd><p>Ancêtre de Minimal (Java 6), Windows seulement, non maintenue.</p></dd><dt class="hdlist1">Zero</dt><dd><p>VM sans code assembleur, interpréteur seulement.</p></dd><dt class="hdlist1">Zero-Shark</dt><dd><p>VM Zero avec compilateur JIT utilisant LLVM.</p></dd></dl></div></section>
+<section id="_tailles_par_défaut_et_performance_des_vm_x86"><h2>Tailles par défaut et performance des VM x86</h2><table class="tableblock frame-all grid-all" style="width:100%"><colgroup><col style="width:20%"><col style="width:40%"><col style="width:20%"><col style="width:20%"></colgroup><thead><tr><th class="tableblock halign-left valign-top">VM</th><th class="tableblock halign-left valign-top">Option de configuration<br>
+<code>--with-jvm-variants=</code></th><th class="tableblock halign-center valign-top">Taille libjvm.so</th><th class="tableblock halign-center valign-top">Score SPECjvm2008</th></tr></thead><tbody><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Server 64bits</p></td><td class="tableblock halign-left valign-top"><div><div class="paragraph"><p><code>server</code></p></div></div></td><td class="tableblock halign-center valign-top"><p class="tableblock">15.5Mo</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">70.9 ops/m</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Server 32bits</p></td><td class="tableblock halign-left valign-top"><div><div class="paragraph"><p><code>server</code></p></div></div></td><td class="tableblock halign-center valign-top"><p class="tableblock">13.5Mo</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">62.9 ops/m</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Client 32bits</p></td><td class="tableblock halign-left valign-top"><div><div class="paragraph"><p><code>client</code></p></div></div></td><td class="tableblock halign-center valign-top"><p class="tableblock">8.4Mo</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">43.9 ops/m</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Minimal 32bits</p></td><td class="tableblock halign-left valign-top"><div><div class="paragraph"><p><code>minimal1</code></p></div></div></td><td class="tableblock halign-center valign-top"><p class="tableblock">5.8Mo</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">40.4 ops/m</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Zero 32 bits</p></td><td class="tableblock halign-left valign-top"><div><div class="paragraph"><p><code>zero</code></p></div></div></td><td class="tableblock halign-center valign-top"><p class="tableblock">7.0Mo</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">1.4 ops/m</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Shark 32 bits</p></td><td class="tableblock halign-left valign-top"><div><div class="paragraph"><p><code>zeroshark</code></p></div></div></td><td class="tableblock halign-center valign-top"><p class="tableblock">19.8Mo</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">16.8 ops/m</p></td></tr></tbody></table></section>
+<section id="_optimisations_de_libjvm_so"><h2>Optimisations de libjvm.so</h2><div class="ulist"><ul><li class="fragment"><p>Edition des liens dynamique avec la lib C++ de l&#8217;OS :</p><div class="ulist"><ul><li><p><code>--with-stdc++lib=dynamic</code></p></li><li><p>Gain : -102ko</p></li></ul></div></li><li class="fragment"><p>Compilation optimisée pour la taille :</p><div class="ulist"><ul><li><p><code>--with-extra-cflags=-Os</code></p></li><li><p>Gain : -1.8Mo sur libjvm.so (VM Minimal)</p></li></ul></div></li><li class="fragment"><p>Stripping des binaires :</p><div class="ulist"><ul><li><p><code>find . -exec strip --strip-unneeded {} \;</code></p></li><li><p>Gain : -1Mo sur libjvm.so (VM Minimal)</p></li></ul></div></li></ul></div></section>
+<section id="_résumé_de_l_optimisation_de_la_taille_de_libjvm_so"><h2>Résumé de l&#8217;optimisation de la taille de libjvm.so</h2><table class="tableblock frame-all grid-all" style="width:100%"><colgroup><col style="width:33%"><col style="width:33%"><col style="width:33%"></colgroup><thead><tr><th class="tableblock halign-left valign-top">VM</th><th class="tableblock halign-center valign-top">Taille libjvm.so par défaut</th><th class="tableblock halign-center valign-top">Taille "optimisée"</th></tr></thead><tbody><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Server 64bits</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">15.5Mo</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">8.8Mo</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Server 32bits</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">13.5Mo</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">7.1Mo</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Client 32bits</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">8.4Mo</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">4.1Mo</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Minimal 32bits</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">5.8Mo</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">2.8Mo</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Zero 32 bits</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">7.0Mo</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">3.4Mo</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Shark 32 bits</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">19.8Mo</p></td><td class="tableblock halign-center valign-top"><p class="tableblock">14.5Mo</p></td></tr></tbody></table></section>
+<section id="_point_sécurité"><h2>Point sécurité</h2><table class="tableblock frame-none grid-none" style="width:100%"><colgroup><col style="width:33%"><col style="width:66%"></colgroup><tbody><tr><td class="tableblock halign-left valign-middle"><div><div class="imageblock" style=""><div class="content"><img src="resources/debian.png" alt="debian" width="200"></div></div></div></td><td class="tableblock halign-left valign-middle"><div><div class="paragraph"><p>Utilisation des options de durcissement Debian<br>
+(cf. <a href="https://wiki.debian.org/Hardening" class="bare">https://wiki.debian.org/Hardening</a>).</p></div></div></td></tr></tbody></table>
+<div class="paragraph"><p><code>--with-extra-cflags='-Os -D_FORTIFY_SOURCE=2</code><br>
+<code>-fstack-protector-strong'</code></p></div>
+<div class="paragraph"><p><code>--with-extra-ldflags='-Xlinker -z -Xlinker relro'</code></p></div>
+<table class="tableblock frame-none grid-none" style="width:100%"><colgroup><col style="width:80%"><col style="width:20%"></colgroup><tbody><tr><td class="tableblock halign-left valign-middle"><div><div class="paragraph"><p>Prix de la sécurité : +139ko (VM Minimal) sans impact perfo mesurable</p></div></div></td><td class="tableblock halign-left valign-middle"><div><div class="imageblock" style=""><div class="content"><img src="resources/duke_wall.png" alt="duke wall" height="200"></div></div></div></td></tr></tbody></table></section>
+<section id="_et_les_arm"><h2>Et les ARM ?</h2><div class="ulist"><ul><li><p>ARMv8 (64 bits) :</p><div class="ulist"><ul><li><p>Port AArch64 depuis mars 2014</p></li><li><p>Dépôt : <a href="http://hg.openjdk.java.net/aarch64-port/jdk8" class="bare">http://hg.openjdk.java.net/aarch64-port/jdk8</a></p></li><li><p>Intégré au dépôt jdk9</p></li></ul></div></li><li><p>ARMv6/7 (32 bits) :</p><div class="ulist"><ul><li><p>Zero / Shark</p></li><li><p>Oracle Java SE Embedded 8 (licence propriétaire) : <a href="http://www.oracle.com/technetwork/java/embedded/embedded-se/" class="bare">http://www.oracle.com/technetwork/java/embedded/embedded-se/</a></p></li></ul></div></li></ul></div></section>
+<section id="_optimisation_de_rt_jar_profiles_compacts"><h2>Optimisation de rt.jar : profiles compacts</h2><div class="paragraph"><p>Nouveauté Java 8.</p></div>
+<div class="quoteblock"><blockquote>Compact profiles are sort of a poor man&#8217;s module system.</blockquote><div class="attribution">&#8212; Mark Reinhold</div></div>
+<div class="imageblock" style=""><div class="content"><img src="resources/compact-profiles.png" alt="compact profiles" height="600"></div></div></section>
+<section id="_génération_des_profiles_compacts"><h2>Génération des profiles compacts</h2><div class="listingblock"><div class="content"><pre class="highlight"><code>$ make profiles</code></pre></div></div>
+<table class="tableblock frame-all grid-all" style="width:50%"><colgroup><col style="width:50%"><col style="width:50%"></colgroup><thead><tr><th class="tableblock halign-left valign-top">Type de JRE</th><th class="tableblock halign-left valign-top">Taille rt.jar</th></tr></thead><tbody><tr><td class="tableblock halign-left valign-top"><p class="tableblock">JRE complet</p></td><td class="tableblock halign-left valign-top"><p class="tableblock">61.7Mo</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Compact 3</p></td><td class="tableblock halign-left valign-top"><p class="tableblock">30.5Mo</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Compact 2</p></td><td class="tableblock halign-left valign-top"><p class="tableblock">24.8Mo</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Compact 1</p></td><td class="tableblock halign-left valign-top"><p class="tableblock">13.9Mo</p></td></tr></tbody></table></section>
+<section id="_compression_de_rt_jar"><h2>Compression de rt.jar</h2><div class="ulist"><ul><li><p>Par défaut, rt.jar n&#8217;est pas compressé !</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>$ zipinfo images/j2re-compact1-image/lib/rt.jar
+[...]
+4689 files, 13858994 bytes uncompressed, 13858994 bytes compressed: 0.0%</code></pre></div></div>
+<div class="ulist"><ul><li><p>Compiler avec <code>COMPRESS_JARS=true</code> :</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>$ make all COMPRESS_JARS=true
+$ make profiles COMPRESS_JARS=true</code></pre></div></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>$ zipinfo images/j2re-compact1-image/lib/rt.jar
+[...]
+4689 files, 13858994 bytes uncompressed, 6574887 bytes compressed: 52.6%</code></pre></div></div></section>
+<section id="_tailles_rt_jar_compressés"><h2>Tailles rt.jar compressés</h2><table class="tableblock frame-all grid-all" style="width:70%"><colgroup><col style="width:33%"><col style="width:33%"><col style="width:33%"></colgroup><thead><tr><th class="tableblock halign-left valign-top">Type de JRE</th><th class="tableblock halign-left valign-top">Sans compression</th><th class="tableblock halign-left valign-top">Avec compression</th></tr></thead><tbody><tr><td class="tableblock halign-left valign-top"><p class="tableblock">JRE complet</p></td><td class="tableblock halign-left valign-top"><p class="tableblock">61.7Mo</p></td><td class="tableblock halign-left valign-top"><p class="tableblock">30.1Mo</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Compact 3</p></td><td class="tableblock halign-left valign-top"><p class="tableblock">30.5Mo</p></td><td class="tableblock halign-left valign-top"><p class="tableblock">14.9Mo</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Compact 2</p></td><td class="tableblock halign-left valign-top"><p class="tableblock">24.8Mo</p></td><td class="tableblock halign-left valign-top"><p class="tableblock">12.0Mo</p></td></tr><tr><td class="tableblock halign-left valign-top"><p class="tableblock">Compact 1</p></td><td class="tableblock halign-left valign-top"><p class="tableblock">13.9Mo</p></td><td class="tableblock halign-left valign-top"><p class="tableblock">7.1Mo</p></td></tr></tbody></table>
+<div class="paragraph"><p>Inconvénient : temps de chargement des classes / démarrage de l&#8217;application</p></div></section>
+<section id="_on_en_est_où"><h2>On en est où ?</h2><div class="paragraph"><p>VM Minimal avec profile compact 1 et compression.</p></div>
+<div class="imageblock" style=""><div class="content"><img src="resources/jre8-compact1-jarcompress.png" alt="jre8 compact1 jarcompress" height="750"></div></div></section>
+<section id="_on_peut_gratter_encore_un_peu"><h2>On peut gratter encore un peu ?</h2><div class="ulist"><ul><li><p>lib/ext (1.6Mo) : packages optionnels</p><div class="ulist"><ul><li><p>localedata.jar (1.1Mo) : données de localisation pour java.text et java.util (43 langues !)</p></li><li><p>sunec.jar (35ko) + lib/{arch}/libsunec.so (180ko) : crypto courbes elliptiques</p></li><li><p>sunjce_provider.jar (253ko) + lib/jce.jar (91ko) : Impl+API crypto (a)symétrique</p></li><li><p>sunpkcs11.jar (230ko) + lib/{arch}/libj2pkcs11.so (63ko) : PKCS#11 (crypto tokens)</p></li></ul></div></li><li><p>lib/jsse.jar (303ko) : Java Secure Socket Extension (TLS/SSL)</p></li></ul></div></section>
+<section id="_et_java_9"><h2>Et Java 9 ?</h2><div class="paragraph"><p>55 modules !</p></div>
+<div class="imageblock" style=""><div class="content"><img src="resources/modules.png" alt="modules" height="600"></div><div class="title">Figure 1. Modules Java 9 (source : Mark Reinhold, JFokus 2015)</div></div></section>
+<section id="_nouveaux_outils"><h2>Nouveaux outils</h2><div class="ulist"><ul><li><p>jdeps (depuis Java 8) : analyse des dépendances.</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>$ jdeps -profile helloworld.jar
+helloworld.jar -&gt; java.base (compact1)
+   test (helloworld.jar)
+      -&gt; java.io                                            compact1
+      -&gt; java.lang                                          compact1</code></pre></div></div>
+<div class="ulist"><ul><li><p>jlink (Java 9) : création d&#8217;images JVM sur mesure.</p></li></ul></div></section>
+<section id="_des_questions"><h2>Des questions ?</h2><div class="imageblock" style=""><div class="content"><img src="resources/duke.png" alt="duke"></div></div></section></div></div><script src="reveal.js/lib/js/head.min.js"></script><script src="reveal.js/js/reveal.js"></script><script>// See https://github.com/hakimel/reveal.js#configuration for a full list of configuration options
+Reveal.initialize({
+  // Display controls in the bottom right corner
+  controls: true,
+  // Display a presentation progress bar
+  progress: true,
+  // Display the page number of the current slide
+  slideNumber: true,
+  // Push each slide change to the browser history
+  history: true,
+  // Enable keyboard shortcuts for navigation
+  keyboard: true,
+  // Enable the slide overview mode
+  overview: true,
+  // Vertical centering of slides
+  center: true,
+  // Enables touch navigation on devices with touch input
+  touch: true,
+  // Loop the presentation
+  loop: false,
+  // Change the presentation direction to be RTL
+  rtl: false,
+  // Turns fragments on and off globally
+  fragments: true,
+  // Flags if the presentation is running in an embedded mode,
+  // i.e. contained within a limited portion of the screen
+  embedded: false,
+  // Number of milliseconds between automatically proceeding to the
+  // next slide, disabled when set to 0, this value can be overwritten
+  // by using a data-autoslide attribute on your slides
+  autoSlide: 0,
+  // Stop auto-sliding after user input
+  autoSlideStoppable: true,
+  // Enable slide navigation via mouse wheel
+  mouseWheel: true,
+  // Hides the address bar on mobile devices
+  hideAddressBar: true,
+  // Opens links in an iframe preview overlay
+  previewLinks: false,
+  // Theme (e.g., beige, black, league, night, serif, simple, sky, solarized, white)
+  // NOTE setting the theme in the config no longer works in reveal.js 3.x
+  //theme: Reveal.getQueryHash().theme || 'black',
+  // Transition style (e.g., none, fade, slide, convex, concave, zoom)
+  transition: Reveal.getQueryHash().transition || 'default',
+  // Transition speed (e.g., default, fast, slow)
+  transitionSpeed: 'default',
+  // Transition style for full page slide backgrounds (e.g., none, fade, slide, convex, concave, zoom)
+  backgroundTransition: 'default',
+  // Number of slides away from the current that are visible
+  viewDistance: 3,
+  // Parallax background image (e.g., "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'")
+  parallaxBackgroundImage: '',
+  // Parallax background size in CSS syntax (e.g., "2100px 900px")
+  parallaxBackgroundSize: '',
+
+  // The "normal" size of the presentation, aspect ratio will be preserved
+  // when the presentation is scaled to fit different resolutions. Can be
+  // specified using percentage units.
+  width: 1280,
+  height: 960,
+
+  // Factor of the display size that should remain empty around the content
+  margin: 0.1,
+
+  // Bounds for smallest/largest possible scale to apply to content
+  minScale: 0.2,
+  maxScale: 1.5,
+
+  // Optional libraries used to extend on reveal.js
+  dependencies: [
+      { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      
+      { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+  ]
+});</script></body></html>
