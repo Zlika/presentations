@@ -1,0 +1,203 @@
+<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Des compilations VRAIMENT reproductibles avec Maven</title><meta content="yes" name="apple-mobile-web-app-capable"><meta content="black-translucent" name="apple-mobile-web-app-status-bar-style"><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui" name="viewport"><link href="reveal.js/css/reveal.css" rel="stylesheet"><link rel="stylesheet" href="resources/style.css" id="theme"><link href="reveal.js/lib/css/zenburn.css" rel="stylesheet"><script>document.write( '<link rel="stylesheet" href="reveal.js/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );</script></head><body><div class="reveal"><div class="slides"><section id="_des_compilations_vraiment_reproductibles_avec_maven"><h2>Des compilations VRAIMENT reproductibles avec Maven</h2><div class="paragraph"><p>Thomas Lorblanchès</p></div>
+<div class="paragraph"><p>21/04/2016</p></div>
+<div class="imageblock" style=""><div class="content"><img src="resources/DukeFriends.jpg" alt="DukeFriends" width="800"></div></div></section>
+<section id="_maven_reproductible"><h2>Maven, reproductible ?</h2><div class="imageblock" style=""><div class="content"><img src="resources/maven.png" alt="maven" width="600"></div></div>
+<div class="ulist"><ul><li><p>Toutes les versions des plugins spécifiées dans le pom</p></li><li><p>Aucune dépendance SNAPSHOT</p></li><li><p>Utilisation de maven-enforcer-plugin (règles requirePluginVersions et requireReleaseVersion)</p></li></ul></div>
+<div class="paragraph"><p>Et pourtant&#8230;&#8203;</p></div></section>
+<section id="_hello_non_reproducible_world"><h2>Hello non-reproducible world!</h2><div class="listingblock"><div class="content"><pre class="highlight"><code>$ cd HelloWorld
+$ mvn clean install
+...
+[INFO] Downloading the Internet...
+[INFO] Running tons of plugins...
+...
+[INFO] BUILD SUCCESS
+
+$ sha256sum target/hello-1.0-SNAPSHOT.jar
+87de0b[...]7ca9  target/hello-1.0-SNAPSHOT.jar</code></pre></div></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>$ mvn clean install
+...
+[INFO] BUILD SUCCESS
+
+$ sha256sum target/hello-1.0-SNAPSHOT.jar
+2f3167[...]86ab  target/hello-1.0-SNAPSHOT.jar</code></pre></div></div>
+<div class="paragraph"><p>Maven essaye de garantir la reproductibilité du processus de compilation et l&#8217;équivalence de son résultat mais pas son identité !</p></div></section>
+<section id="_ok_mais_ça_sert_à_quoi"><h2>Ok, mais ça sert à quoi ?</h2><div class="ulist"><ul><li class="fragment"><p>Prouver qu&#8217;un binaire donné et bien issu de la compilation de sources données.</p><div class="ulist"><ul><li><p>Qualité logicielle (erreur humaine)</p></li><li><p>Sécurité informatique (corruption intentionnelle)</p></li></ul></div></li><li class="fragment"><p>S&#8217;assurer de la cohérence entre paquet source et paquet binaire</p><div class="ulist"><ul><li><p>Maven Central : mylib-1.0.0.jar et mylib-1.0.0-sources.jar</p></li><li><p>Distributions Linux : openjdk-8-jdk_8u72-b05_amd64.deb et openjdk-8_8u72-b05[.orig.tar.gz/.dsc/.diff.gz]</p></li></ul></div></li></ul></div></section>
+<section id="_le_projet_debian_reproducible_builds"><h2>Le projet Debian "reproducible builds"</h2><table class="tableblock frame-none grid-none" style="width:100%"><colgroup><col style="width:25%"><col style="width:75%"></colgroup><tbody><tr><td class="tableblock halign-center valign-top"><div><div class="imageblock" style=""><div class="content"><img src="resources/debian.png" alt="debian" width="200"></div></div></div></td><td class="tableblock halign-center valign-top"><div><div class="quoteblock"><blockquote>It should be possible to reproduce, byte for byte, every build of every package in Debian.</blockquote><div class="attribution">&#8212; https://wiki.debian.org/ReproducibleBuilds</div></div></div></td></tr></tbody></table>
+<div class="ulist"><ul><li class="fragment"><p>2007 : Messages sur debian-devel : “I think it would be really cool if the Debian policy required that packages could be rebuild bit-identical from source.”</p></li><li class="fragment"><p>2011 : Gitian ("secure source-control oriented software distribution method") pour la compilation/distribution de Bitcoin.</p></li><li class="fragment"><p>2013 : Affaire Snowden</p></li><li class="fragment"><p>2013 : Compilation déterministe de Tor Browser (avec Gitian).</p></li><li class="fragment"><p>2013 : Démarrage du projet "Debian reproducible builds" à la DebConf13.</p></li></ul></div></section>
+<section id="_evolution_de_la_reproductibilité_testing_amd64"><h2>Evolution de la reproductibilité (testing/amd64)</h2><div class="imageblock" style=""><div class="content"><img src="resources/stats_pkg_state.png" alt="stats pkg state" width="1280"></div></div></section>
+<section id="_sources_de_non_reproductibilité"><h2>Sources de non-reproductibilité</h2><div class="ulist"><ul><li><p>A l&#8217;intérieur de l&#8217;archive :</p></li></ul></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>hello-1.0-SNAPSHOT/
+├── Main.class
+└── META-INF
+    ├── MANIFEST.MF                    # Non reproductible
+    └── maven
+        └── prez
+            └── hello
+                ├── pom.properties     # Non reproductible
+                └── pom.xml</code></pre></div></div>
+<div class="ulist"><ul><li><p>A "l&#8217;extérieur" de l&#8217;archive (format ZIP).</p></li></ul></div></section>
+<section id="_manifest_mf"><h2>MANIFEST.MF</h2><div class="listingblock"><div class="content"><pre class="highlight"><code>Manifest-Version: 1.0
+Archiver-Version: Plexus Archiver
+Built-By: thomas                     # Non reproductible
+Created-By: Apache Maven 3.0.5       # "Peu" reproductible
+Build-Jdk: 1.8.0_72-internal         # "Peu" reproductible</code></pre></div></div></section>
+<section id="_pom_properties"><h2>pom.properties</h2><div class="listingblock"><div class="content"><pre class="highlight"><code>#Generated by Apache Maven
+#Tue Feb 23 18:02:52 CET 2016        # Non reproductible
+version=1.0-SNAPSHOT
+groupId=prez
+artifactId=hello</code></pre></div></div></section>
+<section id="_format_zip"><h2>Format ZIP</h2><div class="imageblock" style=""><div class="content"><img src="resources/zip_format.png" alt="zip format" width="700"></div></div>
+<div class="ulist"><ul><li><p>File / Central directory file headers :</p><div class="ulist"><ul><li><p>File last modification time</p></li><li><p>File last modification date</p></li><li><p>Extra field : X5455_ExtendedTimestamp</p></li></ul></div></li><li><p>Ordre d&#8217;insertion des fichiers</p></li></ul></div></section>
+<section id="_jaxb"><h2>JAXB</h2><div class="imageblock" style=""><div class="content"><img src="resources/JAXB2.jpg" alt="JAXB2" width="400"></div></div>
+<div class="ulist"><ul><li class="fragment"><p>Bug <a href="https://java.net/jira/browse/JAXB-598">JAXB-598</a> pour les versions antérieures à JAXB 2.2.11</p></li><li class="fragment"><p>Ordre des méthodes du fichier ObjectFactory.java généré par xjc non reproductible</p></li><li class="fragment"><p>&#8658; Fichier ObjectFactory.class non reproductible !</p></li><li class="fragment"><p>Java 8 inclut JAXB 2.2.8</p></li></ul></div></section>
+<section id="_javadoc"><h2>Javadoc</h2><div class="paragraph"><p>3 lignes non reproductibles.</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="html language-html">&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
+&lt;!-- NewPage --&gt;
+&lt;html lang="fr"&gt;
+&lt;head&gt;
+&lt;!-- Generated by javadoc (1.8.0_72-internal) on Thu Feb 25 17:37:57 CET 2016 --&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+&lt;title&gt;Main (hello 1.0-SNAPSHOT API)&lt;/title&gt;
+&lt;meta name="date" content="2016-02-25"&gt;
+[...]
+&lt;!-- ======== END OF BOTTOM NAVBAR ======= --&gt;
+&lt;p class="legalCopy"&gt;&lt;small&gt;Copyright &amp;#169; 2016. All rights reserved.&lt;/small&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div></div></section>
+<section id="_javadoc_2"><h2>Javadoc</h2><div class="paragraph"><p>Avec option "-notimestamp" de javadoc :</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="html language-html">&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"&gt;
+&lt;!-- NewPage --&gt;
+&lt;html lang="fr"&gt;
+&lt;head&gt;
+&lt;!-- Generated by javadoc --&gt;
+&lt;meta http-equiv="Content-Type" content="text/html; charset=UTF-8"&gt;
+&lt;title&gt;Main (hello 1.0-SNAPSHOT API)&lt;/title&gt;
+[...]
+&lt;!-- ======== END OF BOTTOM NAVBAR ======= --&gt;
+&lt;p class="legalCopy"&gt;&lt;small&gt;Copyright &amp;#169; 2016. All rights reserved.&lt;/small&gt;&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div></div></section>
+<section id="_groovy"><h2>Groovy</h2><div class="imageblock" style=""><div class="content"><img src="resources/groovy.png" alt="groovy" width="400"></div></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="groovy language-groovy">println "Hello World!"</code></pre></div></div>
+<div class="paragraph"><p>Compilation puis décompilation :</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code>groovyc hello.groovy
+java -jar procyon-decompiler-0.5.30.jar hello.class</code></pre></div></div></section>
+<section id="_groovy_fichier_class_décompilé_en_java"><h2>Groovy : Fichier class décompilé (en Java)</h2><div class="listingblock"><div class="content"><pre class="highlight"><code class="java language-java">public class hello extends Script
+{
+    public static /* synthetic */ long __timeStamp;
+    public static /* synthetic */ long __timeStamp__239_neverHappen1442922905877;
+    private static /* synthetic */ SoftReference $callSiteArray;
+
+[...]
+
+    static {
+        __$swapInit();
+        test.__timeStamp__239_neverHappen1442922905877 = 0L;
+        test.__timeStamp = 1442922905877L;
+    }
+
+[...]
+}</code></pre></div></div></section>
+<section id="_groovy_origine_des_timestamps"><h2>Groovy : origine des timestamps</h2><div class="paragraph"><p>Classe groovy.lang.GroovyClassLoader :</p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="java language-java">protected void addTimeStamp(ClassNode node) {
+   if (node.getDeclaredField(Verifier.__TIMESTAMP) == null)
+      FieldNode timeTagField = new FieldNode(Verifier.__TIMESTAMP,
+         ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC, ClassHelper.long_TYPE, node,
+         new ConstantExpression(System.currentTimeMillis()));
+      timeTagField.setSynthetic(true);
+      node.addField(timeTagField);
+
+      timeTagField = new FieldNode(
+          Verifier.__TIMESTAMP__ + System.currentTimeMillis(),
+          ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC, ClassHelper.long_TYPE, node,
+          new ConstantExpression((long) 0));
+       timeTagField.setSynthetic(true);
+       node.addField(timeTagField);
+   }
+}</code></pre></div></div></section>
+<section id="_one_maven_plugin_to_rule_them_all"><h2>One Maven plugin to rule them all</h2><div class="paragraph"><p><a href="https://github.com/Zlika/reproducible-build-maven-plugin" class="bare">https://github.com/Zlika/reproducible-build-maven-plugin</a></p></div>
+<div class="listingblock"><div class="content"><pre class="highlight"><code class="xml language-xml">&lt;plugin&gt;
+    &lt;groupId&gt;io.github.zlika&lt;/groupId&gt;
+    &lt;artifactId&gt;reproducible-build-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;0.2&lt;/version&gt;
+&lt;/plugin&gt;</code></pre></div></div>
+<div class="paragraph"><p>Goals :</p></div>
+<div class="ulist"><ul><li><p>strip-jar (phase pre-integration-test) : normalise les fichiers ZIP/JAR/WAR/EAR</p></li><li><p>strip-jaxb (phase process-sources) : normalise les fichiers ObjectFactory.java générés par JAXB/xjc</p></li></ul></div></section>
+<section id="_merci"><h2>Merci !</h2><div class="imageblock" style=""><div class="content"><img src="resources/stormtroopers.jpg" alt="stormtroopers" width="800"></div></div></section></div></div><script src="reveal.js/lib/js/head.min.js"></script><script src="reveal.js/js/reveal.js"></script><script>// See https://github.com/hakimel/reveal.js#configuration for a full list of configuration options
+Reveal.initialize({
+  // Display controls in the bottom right corner
+  controls: true,
+  // Display a presentation progress bar
+  progress: true,
+  // Display the page number of the current slide
+  slideNumber: true,
+  // Push each slide change to the browser history
+  history: true,
+  // Enable keyboard shortcuts for navigation
+  keyboard: true,
+  // Enable the slide overview mode
+  overview: true,
+  // Vertical centering of slides
+  center: true,
+  // Enables touch navigation on devices with touch input
+  touch: true,
+  // Loop the presentation
+  loop: false,
+  // Change the presentation direction to be RTL
+  rtl: false,
+  // Turns fragments on and off globally
+  fragments: true,
+  // Flags if the presentation is running in an embedded mode,
+  // i.e. contained within a limited portion of the screen
+  embedded: false,
+  // Number of milliseconds between automatically proceeding to the
+  // next slide, disabled when set to 0, this value can be overwritten
+  // by using a data-autoslide attribute on your slides
+  autoSlide: 0,
+  // Stop auto-sliding after user input
+  autoSlideStoppable: true,
+  // Enable slide navigation via mouse wheel
+  mouseWheel: true,
+  // Hides the address bar on mobile devices
+  hideAddressBar: true,
+  // Opens links in an iframe preview overlay
+  previewLinks: false,
+  // Theme (e.g., beige, black, league, night, serif, simple, sky, solarized, white)
+  // NOTE setting the theme in the config no longer works in reveal.js 3.x
+  //theme: Reveal.getQueryHash().theme || 'black',
+  // Transition style (e.g., none, fade, slide, convex, concave, zoom)
+  transition: Reveal.getQueryHash().transition || 'default',
+  // Transition speed (e.g., default, fast, slow)
+  transitionSpeed: 'default',
+  // Transition style for full page slide backgrounds (e.g., none, fade, slide, convex, concave, zoom)
+  backgroundTransition: 'default',
+  // Number of slides away from the current that are visible
+  viewDistance: 3,
+  // Parallax background image (e.g., "'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg'")
+  parallaxBackgroundImage: '',
+  // Parallax background size in CSS syntax (e.g., "2100px 900px")
+  parallaxBackgroundSize: '',
+
+  // The "normal" size of the presentation, aspect ratio will be preserved
+  // when the presentation is scaled to fit different resolutions. Can be
+  // specified using percentage units.
+  width: 1280,
+  height: 960,
+
+  // Factor of the display size that should remain empty around the content
+  margin: 0.1,
+
+  // Bounds for smallest/largest possible scale to apply to content
+  minScale: 0.2,
+  maxScale: 1.5,
+
+  // Optional libraries used to extend on reveal.js
+  dependencies: [
+      { src: 'reveal.js/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+      { src: 'reveal.js/plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+      { src: 'reveal.js/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+      { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+      { src: 'reveal.js/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+  ]
+});</script></body></html>

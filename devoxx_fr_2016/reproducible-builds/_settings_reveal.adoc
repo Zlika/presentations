@@ -1,0 +1,34 @@
+:backend: revealjs
+:encoding: utf-8
+
+:revealjs_controls: true
+:revealjs_progress: true
+:revealjs_slidenumber: true
+:revealjs_history: true
+:revealjs_keyboard: true
+:revealjs_overview: true
+:revealjs_center: true
+:revealjs_touch: true
+:revealjs_loop: false
+:revealjs_rtl: false
+:revealjs_fragments: true
+:revealjs_embedded: false
+:revealjs_autoslide: 0
+:revealjs_autoslidestoppable: true
+:revealjs_mousewheel: true
+:revealjs_hideaddressbar: true
+:revealjs_previewlinks: false
+
+:revealjs_transition: default
+:revealjs_transitionspeed: default
+:revealjs_backgroundtransition: default
+:revealjs_viewdistance: 3
+:revealjs_parallaxbackgroundimage:
+:revealjs_parallaxbackgroundsize: 
+:revealjs_customtheme: resources/style.css
+
+:revealjs_width: 1280
+:revealjs_height: 960
+
+:source-highlighter: highlightjs
+
