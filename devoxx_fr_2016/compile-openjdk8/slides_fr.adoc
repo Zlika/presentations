@@ -42,15 +42,18 @@ $ sudo apt-get build-dep openjdk-8 <5>
 
 == Organisation des sources
 
+[cols="1,3"]
 |====================
 2.+^a| *Dépôt racine*
 | common | Fichiers autoconf
 | make | Scripts pour GNU Make
 | test | Makefile pour lancer les tests
+| get_source.sh | Script de téléchargement des sous-dépôts
 |====================
 
 == Organisation des sources
 
+[cols="1,3"]
 |====================
 2.+^a| *Autres dépôts téléchargés par get_source.sh*
 | corba | Implémentation Corba
@@ -121,8 +124,11 @@ Core:: Interpréteur seulement. Utilisé pour le "bootstrap" de la compilation p
 
 == Aparté : Projet "Mobile"
 
-[quote, http://openjdk.java.net/projects/mobile/]
+[cols=".^1a,.^2a",width="100%",frame="none",grid="none"]
+|====================
+| image::resources/DukePhoning.png[width=200] | [quote, http://openjdk.java.net/projects/mobile/]
 The goal of this Project is to focus on porting the JDK to popular mobile platforms such as iOS, Android, and Windows.
+|====================
 
 * JDK 9 based port (Headless)
 * Support at minimum the equivalent of JDK 8 compact2 profile (in module form)
@@ -175,6 +181,7 @@ The goal of this Project is to focus on porting the JDK to popular mobile platfo
 
 == Et les ARM ?
 
+[%step]
 * ARMv8 (64 bits) :
 ** Port AArch64 depuis mars 2014
 ** Dépôt : http://hg.openjdk.java.net/aarch64-port/jdk8
@@ -210,19 +217,30 @@ $ make profiles
 
 == Compression de rt.jar
 
-* Par défaut, rt.jar n'est pas compressé !
+[cols=".^1a,.^2a",width="100%",frame="none",grid="none"]
+|====================
+| image::resources/Archive.png[width=200] | Par défaut, rt.jar n'est pas compressé !
+|====================
+
 [source]
 ----
 $ zipinfo images/j2re-compact1-image/lib/rt.jar
 [...]
 4689 files, 13858994 bytes uncompressed, 13858994 bytes compressed: 0.0%
 ----
-* Compiler avec `COMPRESS_JARS=true` :
+
+== Compression de rt.jar
+
+[cols=".^1a,.^2a",width="100%",frame="none",grid="none"]
+|====================
+| image::resources/Archive.png[width=200] | Compiler avec `COMPRESS_JARS=true` :
 [source]
 ----
 $ make all COMPRESS_JARS=true
 $ make profiles COMPRESS_JARS=true
 ----
+|====================
+
 [source]
 ----
 $ zipinfo images/j2re-compact1-image/lib/rt.jar
@@ -262,8 +280,18 @@ image::resources/jre8-compact1-jarcompress.png[height=750]
 
 * Analyse des dépendances avec jdeps
 
-* Limitation des dépendances externes :
+[source]
+----
+$ jdeps -v -profile hello-1.0-SNAPSHOT.jar 
+hello-1.0-SNAPSHOT.jar -> /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar (compact1)
+   Main         -> java.lang.Object                 compact1
+   Main         -> java.lang.String                 compact1
+----
+
+* Limitation des dépendances externes
 ** Utiliser java.util.logging au lieu de SLF4J/logback/log4j
+** Utiliser javax.xml au lieu d'un parser externe
+** ...
 
 == Et Java 9 ?
 55 modules !

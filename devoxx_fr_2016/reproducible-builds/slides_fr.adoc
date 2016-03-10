@@ -13,11 +13,11 @@ image::resources/DukeFriends.jpg[width=800]
 
 image::resources/maven.png[width=600]
 
+[%step]
 * Toutes les versions des plugins spécifiées dans le pom
 * Aucune dépendance SNAPSHOT
 * Utilisation de maven-enforcer-plugin (règles requirePluginVersions et requireReleaseVersion)
-
-Et pourtant...
+* Et pourtant...
 
 == Hello non-reproducible world!
 
