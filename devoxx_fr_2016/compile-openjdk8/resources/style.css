@@ -1,5 +1,13 @@
 @import url(../reveal.js/lib/font/league-gothic/league-gothic.css);
 @import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic);
+@font-face {
+    font-family: "Montserrat";
+    src: url("./fonts/Montserrat/Montserrat-SemiBold.otf");
+}
+@font-face {
+    font-family: 'Open Sans';
+    src: url("./fonts/Open Sans/OpenSans-Regular.ttf");
+}
 /**
  * League theme for reveal.js.
  *
@@ -13,14 +21,15 @@
  *********************************************/
 
 body {
-  background: url(airbus.png), url(devoxx_fr_2016.png);
-  background-repeat: no-repeat, no-repeat;
-  background-position: 90% bottom, 10% bottom;
-  background-color: #222;
+  background: url(airbus.png), url(devoxx_fr_2016.png), url(footer_gears.jpg);
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-position: 90% bottom, 10% bottom, center bottom;
+  background-size: auto 10%, auto 10%, 100% 10%;
+  background-color: #10001a;
 }
 
 .reveal {
-  font-family: 'Lato', sans-serif;
+  font-family: 'Open Sans', 'Lato', sans-serif;
   font-size: 36px;
   font-weight: normal;
   color: #eee; }
@@ -34,17 +43,22 @@ body {
   line-height: 1.3;
   font-weight: inherit; }
 
+.reveal .slide-background.present {
+    background-position: 0% 0%;
+    background-size: 100% 90%;
+}
+
 /*********************************************
  * HEADERS
  *********************************************/
 .reveal h1, .reveal h2, .reveal h3, .reveal h4, .reveal h5, .reveal h6 {
   margin: 0 0 20px 0;
-  color: #eee;
-  font-family: 'League Gothic', Impact, sans-serif;
+  color: #eeeeee;
+  font-family: Montserrat, 'League Gothic', Impact, sans-serif;
   font-weight: normal;
   line-height: 1.2;
   letter-spacing: normal;
-  text-transform: uppercase;
+/*  text-transform: uppercase; */
   text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2);
   word-wrap: break-word; }
 
@@ -133,7 +147,7 @@ margin: 0 0 0 2em; }
 .reveal pre {
   display: block;
   position: relative;
-  width: 90%;
+  width: 100%;
   margin: 20px auto;
   text-align: left;
   font-size: 0.70em;
@@ -149,7 +163,7 @@ margin: 0 0 0 2em; }
   display: block;
   padding: 5px;
   overflow: auto;
-  max-height: 400px;
+  max-height: 600px;
   word-wrap: normal;
   background: #3F3F3F;
   color: #DCDCDC; }
