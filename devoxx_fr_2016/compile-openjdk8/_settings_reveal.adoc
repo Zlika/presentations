@@ -1,7 +1,7 @@
 :backend: revealjs
 :encoding: utf-8
 
-:revealjs_controls: true
+:revealjs_controls: false
 :revealjs_progress: true
 :revealjs_slidenumber: true
 :revealjs_history: true

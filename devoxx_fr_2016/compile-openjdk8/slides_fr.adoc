@@ -13,6 +13,12 @@ Thomas Lorblanchès
 ^a| image::resources/big_coffee.jpg[width=300, height=300] ^a| image::resources/little_coffee.jpg[width=300, height=300]
 |====================
 
+[NOTE.speaker]
+--
+* OpenJDK : Implémentation libre et de référence de Java sous licence GPLv2 with Classpath Exception
+* Différence avec Oracle JDK : Outils propriétaires (Java Flight Recorder/Mission Control...)
+--
+
 == Airbus Defence & Space
 
 == Pourquoi faire ?
@@ -46,14 +52,13 @@ $ sudo apt-get build-dep openjdk-8
 
 [NOTE.speaker]
 --
-* OpenJDK utilise Mercurial pour ses dépôts de source
+* OpenJDK utilise Mercurial
 * Téléchargement du dépôt racine
 * Téléchargement des sous-dépôts ("forêt")
-* Java 7 ou 8 est requis pour compiler OpenJDK 8
-* Installation des dépendances de compilation
+* Java 7 ou 8 requis pour compiler OpenJDK 8 (compilation en 2 passes si Java 7)
 --
 
-== Organisation des sources
+== Organisation des sources (dépôt racine)
 
 [source]
 ----
@@ -77,9 +82,10 @@ jdk8u60/
 * make : Scripts pour GNU Make
 * test : Makefile pour lancer les tests
 * get_source.sh : Script de téléchargement des sous-dépôts
+* README-builds.html : Doc de compilation
 --
 
-== Organisation des sources
+== Organisation des sources ("forêt")
 
 [source]
 ----
@@ -106,7 +112,6 @@ jdk8u60/
 
 [NOTE.speaker]
 --
-Autres dépôts téléchargés par get_source.sh
 * corba : Implémentation Corba
 * hotspot : Machine Virtuelle Hotspot
 * jaxp : Java API for XML Processing
@@ -157,19 +162,34 @@ image::resources/jdk8-server.png[height=800]
 * *Kernel* : Ancêtre de Minimal (Java 6), Windows seulement, non maintenue.
 * *Core* : Interpréteur seulement. Utilisé pour le "bootstrap" de la compilation pour le portage sur PowerPC/AIX.
 
+[NOTE.speaker]
+--
+Possibilité d'avoir plusieurs VM installées et sélection à l'exécution ("-server", "-client", ...)
+--
+
 == Tailles et perfo des VM x86
 
 [cols="1,2a,^1,^1",width="100%",options="header"]
 |====================
 | VM | Option de configuration +
 `--with-jvm-variants=` | Taille libjvm.so | Score SPECjvm2008
-| Server 64bits | `server` | 15.5Mo | 70.9 ops/m
-| Server 32bits | `server` | 13.5Mo | 62.9 ops/m
-| Client 32bits | `client` | 8.4Mo | 43.9 ops/m
-| Minimal 32bits | `minimal1` | 5.8Mo | 40.4 ops/m
-| Zero 32 bits | `zero` | 7.0Mo | 1.4 ops/m
-| Shark 32 bits | `zeroshark` | 19.8Mo | 16.8 ops/m
+| Server 64b | `server` | 15.5Mo | 70.9 ops/m
+| Server 32b | `server` | 13.5Mo | 62.9 ops/m
+| Client 32b | `client` | 8.4Mo | 43.9 ops/m
+| Minimal 32b | `minimal1` | 5.8Mo | 40.4 ops/m
+| Zero 32b | `zero` | 7.0Mo | 1.4 ops/m
+| Shark 32b | `zeroshark` | 19.8Mo | 16.8 ops/m
 |====================
+
+[NOTE.speaker]
+--
+* Binaires 32b plus petits que 64b (sur disque et donc aussi en mémoire)
+** Rasp.Pi 3 a proc 64b mais OS 32b pour limiter la conso mémoire
+* Perfo Server 64b > Server 32b
+** overhead : pointeurs compressés, objets + gros => pression sur GC, cache CPU moins efficace
+** mais atouts 64b : plus de registres plus gros, nouvelles instructions...
+* Minimal/client => perfo -8%
+--
 
 == Aparté : Projet "Mobile"
 
@@ -179,10 +199,19 @@ image::resources/jdk8-server.png[height=800]
 The goal of this Project is to focus on porting the JDK to popular mobile platforms such as iOS, Android, and Windows.
 |====================
 
+[%step]
 * JDK 9 based port (Headless)
 * Support at minimum the equivalent of JDK 8 compact2 profile (in module form)
 * iOS x64 and arm64 (*arm64 will be provided via Zero interpreter*)
 * Android x86 and arm (*arm will be provided via Zero interpreter*)
+
+== Tailles des VM
+
+[quote, JEP-148]
+Make necessary modifications so that we can optionally build a small VM no larger than 3MB.
+(For reference, the client and server VMs are currently around 6 and 9MB, respectively.)
+
+image::resources/question.png[height=400]
 
 == Optimisations de libjvm.so
 
@@ -196,6 +225,13 @@ The goal of this Project is to focus on porting the JDK to popular mobile platfo
 * Stripping des binaires :
 ** `find . -exec strip --strip-unneeded {} \;`
 ** Gain : -1Mo sur libjvm.so (VM Minimal)
+
+[NOTE.speaker]
+--
+* strip-unneeded : Remove all symbols that are not needed for relocation processing
+** suppression des symboles "non globaux"
+** Cf. https://www.technovelty.org/linux/stripping-shared-libraries.html
+--
 
 == Résumé de l'optimisation de la taille de libjvm.so
 
@@ -228,6 +264,14 @@ The goal of this Project is to focus on porting the JDK to popular mobile platfo
 | Prix de la sécurité : +139ko (VM Minimal) sans impact perfo mesurable | image::resources/duke_wall.png[height=200]
 |====================
 
+[NOTE.speaker]
+--
+* -D_FORTIFY_SOURCE : Détection de buffer overflows pour certaines fonctions de manipulation mémoire/string (memcpy, memset, strcpy, sprintf...) si le compilo connait la taille du buffer destination
+* -fstack-protector-strong : Ajout d'un "canari" sur la pile pour détecter les débordements de pile
+* -Xlinker option : Pass "option" as an option to the linker (man gcc)
+* -z relro : Met certaines sections mémoire en lecture seule après chargement du programme
+--
+
 == Et les ARM ?
 
 [%step]
@@ -240,6 +284,8 @@ The goal of this Project is to focus on porting the JDK to popular mobile platfo
 ** Oracle Java SE Embedded 8 (licence propriétaire) : http://www.oracle.com/technetwork/java/embedded/embedded-se/
 
 == Optimisation de rt.jar
+
+image::resources/cesar.jpg[height=600]
 
 == Profiles compacts
 
@@ -268,6 +314,11 @@ $ make profiles
 | Compact 2 | 24.8Mo
 | Compact 1 | 13.9Mo
 |====================
+
+[NOTE.speaker]
+--
+JAR est un ZIP donc un fichier compressé... hé ben non !
+--
 
 == Compression de rt.jar
 
@@ -313,7 +364,10 @@ $ zipinfo images/j2re-compact1-image/lib/rt.jar
 | Compact 1 | 13.9Mo | 7.1Mo
 |====================
 
+[NOTE.speaker]
+--
 Inconvénient : temps de chargement des classes / démarrage de l'application
+--
 
 == On en est où ?
 
@@ -345,11 +399,20 @@ hello-1.0-SNAPSHOT.jar -> /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar (comp
 ----
 
 [%step]
-* Limitation des dépendances externes
+* Limiter les dépendances externes
 [%step]
-** Utiliser java.util.logging au lieu de SLF4J/logback/log4j
+** Utiliser java.util.logging au lieu de logback / log4j
 ** Utiliser javax.xml au lieu d'un parser externe
-** ...
+** Supprimer les dépendances transitives optionnelles / non utilisées
+* Utiliser jdeps sur les dépendances externes
+
+[NOTE.speaker]
+--
+* logback ~775ko + dépendances vers des classes compact2, compact3 et Full JRE !
+* Maven :
+** Les dépendances optionnelles ne sont pas téléchargées par défaut (mais il faut que le pom soit bien fait)
+** <exclusions> pour exclure des dépendances transitives
+--
 
 == Et Java 9 ?
 55 modules !
@@ -369,7 +432,7 @@ helloworld.jar -> java.base (compact1)
       -> java.lang                                          compact1
 ----
 
-* jlink (Java 9) : création d'images JVM sur mesure.
+* jlink (Java 9) : création d'images JVM sur mesure (cf. JEP-282).
 
 == Des questions ?
 
