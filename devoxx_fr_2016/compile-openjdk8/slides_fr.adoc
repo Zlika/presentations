@@ -317,7 +317,8 @@ $ make profiles
 
 [NOTE.speaker]
 --
-JAR est un ZIP donc un fichier compressé... hé ben non !
+* Format JMOD de Java 9 utilise aussi (pour l'instant) ZIP
+* JAR est un ZIP donc un fichier compressé... hé ben non !
 --
 
 == Compression de rt.jar
@@ -433,6 +434,15 @@ helloworld.jar -> java.base (compact1)
 ----
 
 * jlink (Java 9) : création d'images JVM sur mesure (cf. JEP-282).
+
+* Nouveau format JMOD
+
+[NOTE.speaker]
+--
+* Format JMOD de Java 9 utilise aussi (pour l'instant) ZIP
+* Support de JAR conservé + "modular JAR"
+* Structure JMOD : bin/classes/conf/native
+--
 
 == Des questions ?
 
