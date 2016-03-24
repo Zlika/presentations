@@ -1,6 +1,7 @@
 include::_settings_reveal.adoc[]
 :lang: fr
 
+[data-background="./resources/gears.jpg"]
 == Des compilations VRAIMENT reproductibles avec Maven
 
 Thomas Lorblanchès
@@ -45,15 +46,20 @@ $ sha256sum target/hello-1.0-SNAPSHOT.jar
 2f3167[...]86ab  target/hello-1.0-SNAPSHOT.jar
 ----
 
+[NOTE.speaker]
+--
 Maven essaye de garantir la reproductibilité du processus de compilation et l'équivalence de son résultat mais pas son identité !
+--
 
 == Ok, mais ça sert à quoi ?
 
 [%step]
 * Prouver qu'un binaire donné et bien issu de la compilation de sources données.
+[%step]
 ** Qualité logicielle (erreur humaine)
 ** Sécurité informatique (corruption intentionnelle)
 * S'assurer de la cohérence entre paquet source et paquet binaire
+[%step]
 ** Maven Central : mylib-1.0.0.jar et mylib-1.0.0-sources.jar
 ** Distributions Linux : openjdk-8-jdk_8u72-b05_amd64.deb et openjdk-8_8u72-b05[.orig.tar.gz/.dsc/.diff.gz]
 
@@ -66,19 +72,30 @@ It should be possible to reproduce, byte for byte, every build of every package 
 |====================
 
 [%step]
-* 2007 : Messages sur debian-devel : “I think it would be really cool if the Debian policy required that packages could be rebuild bit-identical from source.”
-* 2011 : Gitian ("secure source-control oriented software distribution method") pour la compilation/distribution de Bitcoin.
+* 2007 : Discussions sur debian-devel
+* 2011 : Compilation déterministe de Bitcoin
 * 2013 : Affaire Snowden
-* 2013 : Compilation déterministe de Tor Browser (avec Gitian).
-* 2013 : Démarrage du projet "Debian reproducible builds" à la DebConf13.
+* 2013 : Compilation déterministe de Tor Browser
+* 2013 : Démarrage du projet "Debian reproducible builds"
+
+[NOTE.speaker]
+--
+* Message sur debian-devel : “I think it would be really cool if the Debian policy required that packages could be rebuild bit-identical from source”
+* Gitian : "secure source-control oriented software distribution method" pour la compilation/distribution de Bitcoin
+--
 
 == Evolution de la reproductibilité (testing/amd64)
 
 image::resources/stats_pkg_state.png[width=1280]
 
+[NOTE.speaker]
+--
+Suite testing/amd64 : 87% de paquets reproductibles (mars 2016)
+--
+
 == Sources de non-reproductibilité
 
-* A l'intérieur de l'archive :
+* A l'intérieur de l'archive
 
 [source]
 ----
@@ -93,7 +110,7 @@ hello-1.0-SNAPSHOT/
                 └── pom.xml
 ----
 
-* A "l'extérieur" de l'archive (format ZIP).
+* Dans le format de l'archive (ZIP)
 
 == MANIFEST.MF
 
@@ -119,7 +136,8 @@ artifactId=hello
 
 image::resources/zip_format.png[width=700]
 
-* File / Central directory file headers :
+[%step]
+* File / Central directory file headers
 ** File last modification time
 ** File last modification date
 ** Extra field : X5455_ExtendedTimestamp
@@ -239,7 +257,7 @@ protected void addTimeStamp(ClassNode node) {
 }
 ----
 
-== One Maven plugin to rule them all
+== Plugin Maven
 
 https://github.com/Zlika/reproducible-build-maven-plugin
 
@@ -254,8 +272,14 @@ https://github.com/Zlika/reproducible-build-maven-plugin
 
 Goals :
 
+* strip-jar
+* strip-jaxb
+
+[NOTE.speaker]
+--
 * strip-jar (phase pre-integration-test) : normalise les fichiers ZIP/JAR/WAR/EAR
 * strip-jaxb (phase process-sources) : normalise les fichiers ObjectFactory.java générés par JAXB/xjc
+--
 
 == Merci !
 
