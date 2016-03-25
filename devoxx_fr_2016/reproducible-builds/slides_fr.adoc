@@ -122,6 +122,12 @@ Created-By: Apache Maven 3.0.5       # "Peu" reproductible
 Build-Jdk: 1.8.0_72-internal         # "Peu" reproductible
 ----
 
+[NOTE.speaker]
+--
+* Created-By : utiliser règle enforce-maven de maven-enforcer-plugin
+* Build-Jdk : utiliser règle enforce-java de maven-enforcer-plugin
+--
+
 == pom.properties
 
 ----
@@ -270,10 +276,7 @@ https://github.com/Zlika/reproducible-build-maven-plugin
 </plugin>
 ----
 
-Goals :
-
-* strip-jar
-* strip-jaxb
+Goals : strip-jar, strip-jaxb
 
 [NOTE.speaker]
 --
