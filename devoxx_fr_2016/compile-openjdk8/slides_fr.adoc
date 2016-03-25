@@ -6,7 +6,7 @@ include::_settings_reveal.adoc[]
 
 Thomas Lorblanchès
 
-21/04/2016
+22/04/2016
 
 [cols="^,^",width="100%",frame="none",grid="none"]
 |====================
