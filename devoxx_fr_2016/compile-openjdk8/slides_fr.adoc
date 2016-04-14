@@ -13,15 +13,21 @@ Thomas Lorblanchès
 ^a| image::resources/big_coffee.jpg[width=300, height=300] ^a| image::resources/little_coffee.jpg[width=300, height=300]
 |====================
 
+[data-background="./resources/products.png"]
+== !
+
+
+== OpenJDK ?
+
+image::resources/thinking.png[width=300]
+
 [NOTE.speaker]
 --
 * OpenJDK : Implémentation libre et de référence de Java sous licence GPLv2 with Classpath Exception
-* Différence avec Oracle JDK : Outils propriétaires (Java Flight Recorder/Mission Control...)
+* Différence avec Oracle JDK : Outils propriétaires (Java Flight Recorder/Mission Control...), licence
 --
 
-== Airbus Defence & Space
-
-== Pourquoi faire ?
+== Minimisation : Pourquoi faire ?
 
 [cols="^,^",width="100%",frame="none",grid="none"]
 |====================
@@ -200,8 +206,8 @@ The goal of this Project is to focus on porting the JDK to popular mobile platfo
 |====================
 
 [%step]
-* JDK 9 based port (Headless)
-* Support at minimum the equivalent of JDK 8 compact2 profile (in module form)
+* JDK 9 based port
+* Support at minimum the equivalent of JDK 8 compact2 profile
 * iOS x64 and arm64 (*arm64 will be provided via Zero interpreter*)
 * Android x86 and arm (*arm will be provided via Zero interpreter*)
 
@@ -409,7 +415,7 @@ hello-1.0-SNAPSHOT.jar -> /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar (comp
 
 [NOTE.speaker]
 --
-* logback ~775ko + dépendances vers des classes compact2, compact3 et Full JRE !
+* logback ~775ko + dépendances vers des classes Full JRE ! (depuis 1.1.7, compatible compact3)
 * Maven :
 ** Les dépendances optionnelles ne sont pas téléchargées par défaut (mais il faut que le pom soit bien fait)
 ** <exclusions> pour exclure des dépendances transitives
