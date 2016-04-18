@@ -258,7 +258,7 @@ image::resources/question.png[height=400]
 
 image::resources/cesar.jpg[height=600]
 
-== Profiles compacts
+== Profils compacts
 
 [quote, Mark Reinhold]
 Compact profiles are sort of a poor man's module system.
@@ -270,7 +270,7 @@ image::resources/compact-profiles.png[height=600]
 Nouveauté Java 8.
 --
 
-== Génération des profiles compacts
+== Génération des profils compacts
 
 [source]
 ----
@@ -343,7 +343,7 @@ Inconvénient : temps de chargement des classes / démarrage de l'application
 
 == On en est où ?
 
-VM Minimal avec profile compact 1 et compression.
+VM Minimal avec profil compact 1 et compression.
 
 image::resources/jre8-compact1-jarcompress.png[height=750]
 
