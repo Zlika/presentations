@@ -14,38 +14,9 @@ $ bash ./get_source.sh</code></pre></div></div>
 <div class="listingblock"><div class="content"><pre class="highlight"><code>$ sudo apt-get install openjdk8-jdk
 $ sudo apt-get build-dep openjdk-8</code></pre></div></div>
 <aside class="notes"><div class="ulist"><ul><li><p>OpenJDK utilise Mercurial</p></li><li><p>Téléchargement du dépôt racine</p></li><li><p>Téléchargement des sous-dépôts ("forêt")</p></li><li><p>Java 7 ou 8 requis pour compiler OpenJDK 8 (compilation en 2 passes si Java 7)</p></li></ul></div></aside></section>
-<section id="_organisation_des_sources_dépôt_racine"><h2>Organisation des sources (dépôt racine)</h2><div class="listingblock"><div class="content"><pre class="highlight"><code>jdk8u60/
-├── common/
-├── make/
-├── test/
-├── ASSEMBLY_EXCEPTION
-├── configure
-├── get_source.sh
-├── LICENSE
-├── Makefile
-├── README
-├── README-builds.html
-└── THIRD_PARTY_README</code></pre></div></div>
+<section id="_organisation_des_sources_dépôt_racine"><h2>Organisation des sources (dépôt racine)</h2><div class="imageblock" style=""><div class="content"><img src="resources/jdk_src_root.png" alt="jdk src root" width="1000"></div></div>
 <aside class="notes"><div class="ulist"><ul><li><p>common : Fichiers autoconf</p></li><li><p>make : Scripts pour GNU Make</p></li><li><p>test : Makefile pour lancer les tests</p></li><li><p>get_source.sh : Script de téléchargement des sous-dépôts</p></li><li><p>README-builds.html : Doc de compilation</p></li></ul></div></aside></section>
-<section id="_organisation_des_sources_forêt"><h2>Organisation des sources ("forêt")</h2><div class="listingblock"><div class="content"><pre class="highlight"><code>jdk8u60/
-├── common/
-├── corba/
-├── hotspot/
-├── jaxp/
-├── jaxws/
-├── jdk/
-├── langtools/
-├── make/
-├── nashorn/
-├── test/
-├── ASSEMBLY_EXCEPTION
-├── configure
-├── get_source.sh
-├── LICENSE
-├── Makefile
-├── README
-├── README-builds.html
-└── THIRD_PARTY_README</code></pre></div></div>
+<section id="_organisation_des_sources_forêt"><h2>Organisation des sources ("forêt")</h2><div class="imageblock" style=""><div class="content"><img src="resources/jdk_src_full.png" alt="jdk src full" width="1000"></div></div>
 <aside class="notes"><div class="ulist"><ul><li><p>corba : Implémentation Corba</p></li><li><p>hotspot : Machine Virtuelle Hotspot</p></li><li><p>jaxp : Java API for XML Processing</p></li><li><p>jaxws : Java API for XML Web Services</p></li><li><p>jdk : Bibliothèques runtime</p></li><li><p>langtools : javac et autre outils du langage (javadoc, jdeps&#8230;&#8203;)</p></li><li><p>nashorn : Moteur Javascript</p></li></ul></div></aside></section>
 <section id="_compilation_d_openjdk_8"><h2>Compilation d&#8217;OpenJDK 8</h2><div class="ulist"><ul><li><p>Configuration de la compilation :</p></li></ul></div>
 <div class="listingblock"><div class="content"><pre class="highlight"><code>$ bash ./configure --with-jvm-variants=server \
@@ -109,13 +80,13 @@ hello-1.0-SNAPSHOT.jar -&gt; /usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar (c
 <aside class="notes"><div class="ulist"><ul><li><p>logback ~775ko + dépendances vers des classes Full JRE ! (depuis 1.1.7, compatible compact3)</p></li><li><p>Maven :</p><div class="ulist"><ul><li><p>Les dépendances optionnelles ne sont pas téléchargées par défaut (mais il faut que le pom soit bien fait)</p></li><li><p>&lt;exclusions&gt; pour exclure des dépendances transitives</p></li></ul></div></li></ul></div></aside></section>
 <section id="_et_java_9"><h2>Et Java 9 ?</h2><div class="paragraph"><p>55 modules !</p></div>
 <div class="imageblock" style=""><div class="content"><img src="resources/modules.png" alt="modules" height="600"></div><div class="title">Figure 1. Modules Java 9 (source : Mark Reinhold, JFokus 2015)</div></div></section>
-<section id="_nouveaux_outils"><h2>Nouveaux outils</h2><div class="ulist"><ul><li><p>jdeps (depuis Java 8) : analyse des dépendances.</p></li></ul></div>
+<section id="_nouveaux_outils"><h2>Nouveaux outils</h2><div class="ulist"><ul><li><p>jdeps (depuis Java 8) : analyse des dépendances</p></li></ul></div>
 <div class="listingblock"><div class="content"><pre class="highlight"><code>$ jdeps -profile helloworld.jar
 helloworld.jar -&gt; java.base (compact1)
    test (helloworld.jar)
       -&gt; java.io                                            compact1
       -&gt; java.lang                                          compact1</code></pre></div></div>
-<div class="ulist"><ul><li><p>jlink (Java 9) : création d&#8217;images JVM sur mesure (cf. JEP-282).</p></li><li><p>Nouveau format JMOD</p></li></ul></div>
+<div class="ulist"><ul><li><p>jlink (Java 9) : création d&#8217;images JVM sur mesure (cf. JEP-282)</p></li><li><p>Nouveau format JMOD</p></li></ul></div>
 <aside class="notes"><div class="ulist"><ul><li><p>Format JMOD de Java 9 utilise aussi (pour l&#8217;instant) ZIP</p></li><li><p>Support de JAR conservé + "modular JAR"</p></li><li><p>Structure JMOD : bin/classes/conf/native</p></li></ul></div></aside></section>
 <section id="_des_questions"><h2>Des questions ?</h2><div class="imageblock" style=""><div class="content"><img src="resources/duke.png" alt="duke"></div></div></section></div></div><script src="reveal.js/lib/js/head.min.js"></script><script src="reveal.js/js/reveal.js"></script><script>// See https://github.com/hakimel/reveal.js#configuration for a full list of configuration options
 Reveal.initialize({

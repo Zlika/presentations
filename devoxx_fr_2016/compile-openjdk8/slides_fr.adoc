@@ -66,21 +66,7 @@ $ sudo apt-get build-dep openjdk-8
 
 == Organisation des sources (dépôt racine)
 
-[source]
-----
-jdk8u60/
-├── common/
-├── make/
-├── test/
-├── ASSEMBLY_EXCEPTION
-├── configure
-├── get_source.sh
-├── LICENSE
-├── Makefile
-├── README
-├── README-builds.html
-└── THIRD_PARTY_README
-----
+image::resources/jdk_src_root.png[width=1000]
 
 [NOTE.speaker]
 --
@@ -93,28 +79,7 @@ jdk8u60/
 
 == Organisation des sources ("forêt")
 
-[source]
-----
-jdk8u60/
-├── common/
-├── corba/
-├── hotspot/
-├── jaxp/
-├── jaxws/
-├── jdk/
-├── langtools/
-├── make/
-├── nashorn/
-├── test/
-├── ASSEMBLY_EXCEPTION
-├── configure
-├── get_source.sh
-├── LICENSE
-├── Makefile
-├── README
-├── README-builds.html
-└── THIRD_PARTY_README
-----
+image::resources/jdk_src_full.png[width=1000]
 
 [NOTE.speaker]
 --
@@ -428,7 +393,7 @@ image::resources/modules.png[title="Modules Java 9 (source : Mark Reinhold, JFok
 
 == Nouveaux outils
 
-* jdeps (depuis Java 8) : analyse des dépendances.
+* jdeps (depuis Java 8) : analyse des dépendances
 
 [source]
 ----
@@ -439,7 +404,7 @@ helloworld.jar -> java.base (compact1)
       -> java.lang                                          compact1
 ----
 
-* jlink (Java 9) : création d'images JVM sur mesure (cf. JEP-282).
+* jlink (Java 9) : création d'images JVM sur mesure (cf. JEP-282)
 
 * Nouveau format JMOD
 
